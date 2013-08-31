@@ -11,7 +11,7 @@
     latitude   = position.coords.latitude
     longitude  = position.coords.longitude
     mapOptions =
-      zoom : 24
+      zoom : 18
       center: new google.maps.LatLng(latitude, longitude)
       mapTypeId: google.maps.MapTypeId.ROADMAP
 
