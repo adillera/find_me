@@ -3,12 +3,7 @@
   %div{ id: 'navigation-bar' }
     %h1
       Find<strong>Me</strong>
-
-    -#Move the form in the login page
-    -#= form_tag root_path, { id: 'user-details' } do
-      -#= text_field_tag 'channel', Time.now.utc.to_i, { placeholder: 'Channel' }
-      -#= text_field_tag 'title', nil, { placeholder: 'User Alias' }
-      -#= button_tag 'Set user details', { type: 'button', id: 'set-user-details' }
+    = link_to 'Logout', logout_main_index_path, { method: 'delete', id: 'logout-link' }
 
   %div{ id: 'content-holder' }
     %div{ id: 'map-container' }
@@ -17,6 +12,7 @@
 
   %footer
     footer here
+
 
 = content_for :page_scripts do
   = javascript_include_tag 'https://maps.googleapis.com/maps/api/js?key=AIzaSyCV1cXbVVj0B01oWC1xfTgBk7d-tqDsfKI&sensor=true'

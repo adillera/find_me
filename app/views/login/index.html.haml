@@ -1,2 +1,8 @@
-%h1 Login#index
-%p Find me in app/views/login/index.html.haml
+= form_tag login_index_path, { id: 'user-details' } do
+  = text_field_tag 'channel', Time.now.utc.to_i, { placeholder: 'Channel' }
+  = text_field_tag 'title', nil, { placeholder: 'User Alias' }
+  = button_tag 'Set user details', { id: 'set-user-details' }
+
+
+= content_for :page_scripts do
+  = stylesheet_link_tag "/assets/#{ params[:controller] }/#{ params[:controller] }"
