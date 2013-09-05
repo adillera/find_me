@@ -8,5 +8,5 @@ app.listen(9595)
 io.sockets.on 'connection', (socket) ->
   console.log('socket open')
 
-handler = ->
-  console.log('handler')
+handler = (req, res) ->
+  console.log(req)
