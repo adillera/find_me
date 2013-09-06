@@ -2,14 +2,28 @@
   self = this
 
   initialize: ->
+    self.uniqId           = new Date().utc(true).getTime()
+    self.markers          = new Object
+    self.navigator        = navigator.geolocation
+    self.socket           = io.connect('http://' + window.location.hostname + ':9595')
+
+    @setUserDetails()
+
+    self.socket.on 'data', @loadOtherMarkers
+
+
+  setUserDetails: ->
     cookie                = document.cookie
     start_of_user_details = cookie.indexOf('user_details=')
-    end_of_user_details   = cookie.indexOf(';', start_of_user_details)
-    user_details          = unescape(document.cookie.substring(start_of_user_details, end_of_user_details)).split('=')[1].split('_')
-    self.navigator        = navigator.geolocation
-    self.channel          = user_details[0]
-    self.title            = user_details[1]
-    self.socket           = io.connect('http://' + window.location.hostname + ':9595')
+
+    if cookie.indexOf(';', start_of_user_details) == -1
+      end_of_user_details = cookie.length
+    else
+      end_of_user_details = cookie.indexOf(';', start_of_user_details)
+
+    user_details = unescape(cookie.substring(start_of_user_details, end_of_user_details)).split('=')[1].split('_')
+    self.channel = user_details[0]
+    self.title   = user_details[1]
 
 
   loadMap: (position) ->
@@ -23,34 +37,39 @@
     self.map = new google.maps.Map($('#map-container')[0], mapOptions)
 
 
-  emitMarker: (position) ->
+  loadMarker: (position) ->
     latitude  = position.coords.latitude
     longitude = position.coords.longitude
-
-    data =
-      title:     self.title
-      latitude:  latitude
-      longitude: longitude
-
-    console.log(self.socket.emit(self.channel, data))
-
-
-  loadMarkers: (data) ->
-
     latLng    = new google.maps.LatLng(latitude, longitude)
 
-    new google.maps.Marker(
+    marker = new google.maps.Marker(
       position: latLng
       map: self.map
       title: self.title
     )
 
+    data =
+      channel: self.channel
+      values:
+        id:        self.uniqId
+        latitude:  latitude
+        longitude: longitude
+        title:     self.title
+
+    self.socket.emit('send', data)
+
+
+  loadOtherMarkers: (data) ->
+    console.log(data)
+
 
   render: ->
     if self.navigator
-      self.navigator.getCurrentPosition(@loadMap)
-      self.navigator.watchPosition(@emitMarker)
+      self.socket.emit('subscribe', self.channel)
 
-      self.socket.on(self.channel, @loadMarkers)
+      # Load and center the map
+      self.navigator.getCurrentPosition(@loadMap)
+
+      self.navigator.watchPosition(@loadMarker)
     else
       console.log('error')

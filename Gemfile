@@ -46,6 +46,7 @@ end
 
 gem 'thin'
 gem 'haml-rails'
+gem 'sugar-rails'
 
 group :test, :development do
   gem 'pry'
