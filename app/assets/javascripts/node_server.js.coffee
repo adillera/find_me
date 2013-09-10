@@ -1,16 +1,13 @@
 app  = require('http').createServer(handler)
 io   = require('socket.io').listen(app)
 
-
 app.listen(9595)
 
-
 handler = (req, res) ->
-
 
 io.sockets.on 'connection', (socket) ->
   socket.on 'subscribe', (channel) ->
     socket.join(channel)
 
   socket.on 'send', (data) ->
-    io.sockets.in(data.channel).emit 'data', data.values
+    socket.broadcast.to(data.channel).emit('data', data.values)

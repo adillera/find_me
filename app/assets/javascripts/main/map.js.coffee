@@ -2,7 +2,6 @@
   self = this
 
   initialize: ->
-    self.uniqId           = new Date().utc(true).getTime()
     self.markers          = new Object
     self.navigator        = navigator.geolocation
     self.socket           = io.connect('http://' + window.location.hostname + ':9595')
@@ -22,8 +21,9 @@
       end_of_user_details = cookie.indexOf(';', start_of_user_details)
 
     user_details = unescape(cookie.substring(start_of_user_details, end_of_user_details)).split('=')[1].split('_')
-    self.channel = user_details[0]
-    self.title   = user_details[1]
+    self.uniqId  = user_details[0]
+    self.channel = user_details[1]
+    self.title   = user_details[2]
 
 
   loadMap: (position) ->
@@ -38,20 +38,23 @@
 
 
   loadMarker: (position) ->
+    if self.markers[self.uniqId] then self.markers[self.uniqId].setMap(map: null)
+
     latitude  = position.coords.latitude
     longitude = position.coords.longitude
     latLng    = new google.maps.LatLng(latitude, longitude)
 
-    marker = new google.maps.Marker(
+    marker = new google.maps.Marker
       position: latLng
-      map: self.map
-      title: self.title
-    )
+      map:      self.map
+      title:    self.title
+
+    self.markers[self.uniqId] = marker
 
     data =
       channel: self.channel
       values:
-        id:        self.uniqId
+        uniqId:    self.uniqId
         latitude:  latitude
         longitude: longitude
         title:     self.title
@@ -60,7 +63,16 @@
 
 
   loadOtherMarkers: (data) ->
-    console.log(data)
+    if self.markers[data.uniqId] then self.markers[data.uniqId].setMap(map: null)
+
+    latLng = new google.maps.LatLng(data.latitude, data.longitude)
+
+    marker = new google.maps.Marker
+      position: latLng
+      map:      self.map
+      title:    data.title
+
+    self.markers[data.uniqId] = marker
 
 
   render: ->

@@ -5,7 +5,7 @@ class LoginController < ApplicationController
 
 
   def create
-    user_details = "#{ params[:channel] }_#{ params[:title] }"
+    user_details = "#{ Time.now.utc.to_i }_#{ params[:channel] }_#{ params[:title] }"
 
     if cookies[:user_details] = { value: user_details, expires: 1.day.from_now.utc }
       redirect_to root_path
