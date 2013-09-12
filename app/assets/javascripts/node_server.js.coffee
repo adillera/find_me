@@ -10,4 +10,5 @@ io.sockets.on 'connection', (socket) ->
     socket.join(channel)
 
   socket.on 'send', (data) ->
+    console.log(data)
     socket.broadcast.to(data.channel).emit('data', data.values)
